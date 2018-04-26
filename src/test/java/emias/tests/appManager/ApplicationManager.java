@@ -10,7 +10,8 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 public class ApplicationManager {
     public static WebDriver driver;
-    private NavigationHelper navigationHelper ;
+    private NavigationHelper navigationHelper;
+    private SessionHelper sessionHelper;
     private Helper helper;
     public String browser = "chrome";
     public StringBuffer verificationErrors = new StringBuffer();
@@ -20,7 +21,7 @@ public class ApplicationManager {
         driver.quit();
     }
 
-    public void init() {
+    public void init() throws InterruptedException {
         if ("firefox".equals(browser)) {
             FirefoxProfile profile = new FirefoxProfile();
             profile.setPreference("browser.download.folderList", 2);
@@ -44,33 +45,20 @@ public class ApplicationManager {
         }
         helper = new Helper(driver);
         navigationHelper = new NavigationHelper(driver);
+        sessionHelper = new SessionHelper(driver);
+        start();
     }
 
-    public void openLoginForm() {
-        WebElement infomat1 = helper.findElement(By.xpath("//div[@ng-dblclick=\"onOmsHack()\"]"));
-        String text2 = infomat1.getText();
-        System.out.println("text2  = " + text2);
-        helper.dbClick(infomat1);
-    }
-
-    public void login(LoginData loginData) throws InterruptedException {
-        helper.click(By.xpath("//input[contains(@ng-model,'controller.oms')]"));
-        helper.type(By.xpath("//input[contains(@ng-model,'controller.oms')]"), loginData.getOms());
-        helper.click(By.xpath("//input[contains(@ng-model,'controller.oms1')]"));
-        helper.type(By.xpath("//input[contains(@ng-model,'controller.oms1')]"), loginData.getOms1());
-        helper.click(By.xpath("//input[contains(@ng-model,'controller.oms2')]"));
-        helper.type(By.xpath("//input[contains(@ng-model,'controller.oms2')]"), loginData.getOms2());
-
-        helper.click(By.xpath("//button[contains(text(),'Продолжить')]"));
-        Thread.sleep(500);
+    public void openLoginFormAndLogin() throws InterruptedException {
+        sessionHelper.openLoginForm();
+        sessionHelper.login(new LoginData("2358810868001039", "23", "39"));
+        navigationHelper.isOnMainPage();
     }
 
     public void start() throws InterruptedException {
         navigationHelper.openInfomat();
         Thread.sleep(700);
-        openLoginForm();
-        Thread.sleep(700);
-        login(new LoginData("2358810868001039", "23", "39"));
+        openLoginFormAndLogin();
     }
 
     public Helper getHelper() {
@@ -79,5 +67,21 @@ public class ApplicationManager {
 
     public NavigationHelper getNavigationHelper() {
         return navigationHelper;
+    }
+
+    public SessionHelper getSessionHelper() {
+        return sessionHelper;
+    }
+
+    public void appToDoctorWithoutReferral() throws InterruptedException {
+        navigationHelper.appToDoctorWithoutReferral();
+    }
+
+    public void shiftAppointment() throws InterruptedException {
+        navigationHelper.shiftAppointment();
+    }
+
+    public void cancel() throws InterruptedException {
+        navigationHelper.cancel();
     }
 }

@@ -2,11 +2,15 @@ package emias.tests.appManager;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.util.List;
 
 public class Helper {
-    private static WebDriver driver;
+    public static WebDriver driver;
     public boolean acceptNextAlert = true;
+    protected ApplicationManager manager;
 
     public Helper(WebDriver driver) {
         this.driver = driver;
@@ -24,7 +28,6 @@ public class Helper {
     }
 
     public boolean isTextPresent(String expected) throws InterruptedException {
-
         try {
             if (driver.findElement(By.cssSelector("body")).getText()
                     .contains(expected)) {
@@ -33,7 +36,6 @@ public class Helper {
             } else {
                 System.out.println("'" + expected + "'" + " -  text is NOT on this page");
                 return false;
-
             }
         } catch (WebDriverException e) {
             throw new WebDriverException(e.getMessage());
@@ -97,4 +99,15 @@ public class Helper {
                 acceptNextAlert = true;
             }
         }
+
+    public void zoom(int zoom) {
+        JavascriptExecutor jse = (JavascriptExecutor)driver;
+        jse.executeScript("document.body.style.zoom = '"+zoom+"%';");
+    }
+
+    public void wait_actions_present() {
+        WebDriverWait wait = new WebDriverWait(driver, 3000);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[contains(text(),'Выберите действие')]")));
+    }
+
 }
