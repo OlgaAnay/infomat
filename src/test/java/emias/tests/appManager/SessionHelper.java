@@ -30,4 +30,15 @@ public class SessionHelper extends Helper{
         click(By.xpath("//button[contains(text(),'Продолжить')]"));
         Thread.sleep(500);
     }
+
+    public void isOnMainPage() throws InterruptedException {
+        Thread.sleep(2000);
+        wait_actions_present();
+        assert (isTextPresent("Записаться к врачу") == true);
+        assert (isTextPresent("Записаться по направлению") == true);
+        assert (isTextPresent("Перенести запись") == true);
+        assert (isTextPresent("Отменить запись") == true);
+        assert (isTextPresent("Распечатать талон") == true);
+        assert (isTextPresent("Информация о рецепте") == true);
+    }
 }

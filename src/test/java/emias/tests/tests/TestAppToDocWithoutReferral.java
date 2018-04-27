@@ -11,10 +11,7 @@ public class TestAppToDocWithoutReferral extends TestBase {
         public void testInfomatLogin() throws InterruptedException {
         app.appToDoctorWithoutReferral();
         //app.login(new LoginData("2358810868001039", "23", "39"));
-        app.shiftAppointment(); // не работало, сделан обход, но надо проверить, почему запись не переносится
+        app.shiftAppointment("WithoutReferral"); // не работало, сделан обход, но надо проверить, почему запись не переносится
         app.cancel();
-
-        }
-
-
+    }
 }

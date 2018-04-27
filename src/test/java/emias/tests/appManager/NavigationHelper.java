@@ -9,21 +9,12 @@ public class NavigationHelper extends Helper {
     public NavigationHelper(WebDriver driver) {
         super(driver);
     }
+    protected ApplicationManager manager;
 
     public void openInfomat() {
-        driver.get("http://infomat3.emias.dzm.lanit.ru/web-infomat");
+        driver.get(manager.props.getProperty("baseURL"));
     }
 
-    public void isOnMainPage() throws InterruptedException {
-        Thread.sleep(2000);
-        wait_actions_present();
-        assert (isTextPresent("Записаться к врачу") == true);
-        assert (isTextPresent("Записаться по направлению") == true);
-        assert (isTextPresent("Перенести запись") == true);
-        assert (isTextPresent("Отменить запись") == true);
-        assert (isTextPresent("Распечатать талон") == true);
-        assert (isTextPresent("Информация о рецепте") == true);
-    }
 
     public void appToDoctorWithoutReferral() throws InterruptedException {
         //Нажать "Записаться к врачу"
@@ -75,20 +66,26 @@ public class NavigationHelper extends Helper {
         dbClick(day);
     }
 
-    public void shiftAppointment() throws InterruptedException {
+    public void shiftAppointment(String ref) throws InterruptedException {
+        //Нажать "Перенести запись"
         dbClick(findElement(By.xpath("//div[@ng-click=\"controller.moveAppointment()\"]")));
         Thread.sleep(3000);
+        //Проверка, есть ли запись для переноса
         try {
             assert (isElementPresent(By.xpath("//div[@class=\"inf-group-btn__item inf-btn inf-btn_type_doctor\"]")) == true);
         } catch (Error e) {
             System.out.println("Error assert " + e );
             assert (isTextPresent("Отсутствуют записи для переноса") == true);
         }
+
         dbClick(findElement(By.xpath("//div[@class=\"inf-group-btn__item inf-btn inf-btn_type_doctor\"]")));
         Thread.sleep(3000);
-        //Выбрать того же доктора
-        dbClick(findElement(By.xpath("//div[@ng-click=\"controller.selectSpecialist(doctor)\"]")));
-        click_Next();
+        if (ref.equals("WithoutReferral")) {
+            //Выбрать того же доктора
+            dbClick(findElement(By.xpath("//div[@ng-click=\"controller.selectSpecialist(doctor)\"]")));
+            click_Next();
+        }
+
         Thread.sleep(3000);
         selectDayAndTime("shiftAppointment");
         //Сейчас тут ошибка, исправить после устранения
@@ -108,5 +105,27 @@ public class NavigationHelper extends Helper {
         zoom(30);
         assert (isTextPresent("Спасибо, что Вы отменили") == true);
         dbClick(findElement(By.xpath("//div[@ng-click=\"controller.goToState('logout')\"]")));
+    }
+
+    public void appByReferral() throws InterruptedException {
+
+        //Нажать "Записаться к врачу"
+        click(By.xpath("//div[@ng-click=\"controller.makeAppointmentByReferral()\"]"));
+        Thread.sleep(2000);
+        //Выбрать первую специальность
+        click(By.xpath("//div[@ng-repeat=\"value in controller.referralsList track by $index\"]"));
+        Thread.sleep(2000);
+        //Выбрать первого врача
+//        click(By.xpath("//div[@ng-repeat=\"doctor in controller.filteredDoctors track by $index\"]"));
+//        Thread.sleep(2000);
+        //Нажать "Продолжить"
+        click_Next();
+        Thread.sleep(2000);
+        //Выбрать дату и время приема
+        selectDayAndTime("createAppointment");
+        //Продолжить
+        click_Next();
+        Thread.sleep(2000);
+        //Тут ошибка, но запись создается
     }
 }

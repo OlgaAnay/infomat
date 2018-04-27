@@ -7,21 +7,35 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.testng.Assert;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 public class ApplicationManager {
+    public static final String CONFIG_FILE = "application.properties";
     public static WebDriver driver;
+    public static Properties props = new Properties();
+    public StringBuffer verificationErrors = new StringBuffer();
+    public String browser;
+    public String verificationErrorString = verificationErrors.toString();
+
     private NavigationHelper navigationHelper;
     private SessionHelper sessionHelper;
     private Helper helper;
-    public String browser = "chrome";
-    public StringBuffer verificationErrors = new StringBuffer();
-
-
-    public void stop() {
-        driver.quit();
-    }
 
     public void init() throws InterruptedException {
+        try {
+            props.load(new FileInputStream(CONFIG_FILE));
+            System.out.println(props.toString());
+            browser = props.getProperty("browser");
+        } catch (IOException e) {
+            Assert.fail("Cannot read configuration properties file "
+                    + new File(CONFIG_FILE).getAbsolutePath());
+        }
+
         if ("firefox".equals(browser)) {
             FirefoxProfile profile = new FirefoxProfile();
             profile.setPreference("browser.download.folderList", 2);
@@ -49,10 +63,14 @@ public class ApplicationManager {
         start();
     }
 
+    public void stop() {
+        driver.quit();
+    }
+
     public void openLoginFormAndLogin() throws InterruptedException {
         sessionHelper.openLoginForm();
-        sessionHelper.login(new LoginData("2358810868001039", "23", "39"));
-        navigationHelper.isOnMainPage();
+        sessionHelper.login(new LoginData(props.getProperty("oms"), props.getProperty("oms1"), props.getProperty("oms2")));
+        sessionHelper.isOnMainPage();
     }
 
     public void start() throws InterruptedException {
@@ -77,11 +95,15 @@ public class ApplicationManager {
         navigationHelper.appToDoctorWithoutReferral();
     }
 
-    public void shiftAppointment() throws InterruptedException {
-        navigationHelper.shiftAppointment();
+    public void shiftAppointment(String ref) throws InterruptedException {
+        navigationHelper.shiftAppointment(ref);
     }
 
     public void cancel() throws InterruptedException {
         navigationHelper.cancel();
+    }
+
+    public void appByReferral() throws InterruptedException {
+        navigationHelper.appByReferral();
     }
 }
